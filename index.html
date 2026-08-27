@@ -130,41 +130,6 @@
     .btn:hover { filter: brightness(1.05); }
     .copied { background: var(--green) !important; }
 
-    .toolbar-meta {
-      display: flex;
-      gap: 0.7rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .domain-picker {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
-    .domain-picker label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-    .domain-picker select {
-      font: inherit;
-      font-weight: 600;
-      color: var(--navy);
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 0.45rem 2rem 0.45rem 0.7rem;
-      min-width: 220px;
-      cursor: pointer;
-      box-shadow: 0 1px 0 rgba(22, 50, 79, 0.04);
-    }
-    .domain-picker select:focus {
-      outline: 2px solid var(--accent);
-      outline-offset: 1px;
-    }
-
     .question-shell {
       background: var(--card);
       border: 1px solid var(--line);
@@ -372,13 +337,6 @@
       "05support": "support",
       support: "support",
     };
-    const DOMAIN_OPTIONS = [
-      { slug: "01banking", key: "banking", label: "01banking — Cred (Banking)" },
-      { slug: "02ecommerce", key: "ecommerce", label: "02ecommerce — Nykaa (E-commerce)" },
-      { slug: "03healthcare", key: "healthcare", label: "03healthcare — Practo (Healthcare)" },
-      { slug: "04recruitment", key: "recruitment", label: "04recruitment — Naukri.com (Recruitment)" },
-      { slug: "05support", key: "support", label: "05support — Ola (Support)" },
-    ];
 
     if (window.marked) marked.setOptions({ gfm: true, breaks: false });
 
@@ -989,54 +947,6 @@
       `;
     }
 
-    function slugForTrack(trackKey) {
-      const option = DOMAIN_OPTIONS.find((item) => item.key === trackKey);
-      return option ? option.slug : "";
-    }
-
-    function domainDropdown(batch, selectedSlug) {
-      const options = DOMAIN_OPTIONS.map(
-        (item) =>
-          `<option value="${item.slug}" ${item.slug === selectedSlug || TRACK_ALIASES[selectedSlug] === item.key ? "selected" : ""}>${item.label}</option>`
-      ).join("");
-      return `
-        <div class="domain-picker">
-          <label for="domain-select">Domain</label>
-          <select id="domain-select">
-            <option value="">Select domain</option>
-            ${options}
-          </select>
-        </div>
-      `;
-    }
-
-    function bindDomainSelect(batch) {
-      const select = document.getElementById("domain-select");
-      if (!select) return;
-      select.addEventListener("change", () => {
-        if (!select.value) {
-          location.hash = "#/" + batch.id;
-          return;
-        }
-        location.hash = "#/" + batch.id + "/" + select.value;
-      });
-    }
-
-    function batchPickerView(batch) {
-      app.innerHTML = `
-        <div class="toolbar">
-          <div class="toolbar-meta">
-            <strong>${batch.title}</strong>
-            ${domainDropdown(batch, "")}
-          </div>
-        </div>
-        <article class="question-shell">
-          <p class="lede" style="margin:0;color:var(--muted)">Select a domain from the dropdown to load that problem statement.</p>
-        </article>
-      `;
-      bindDomainSelect(batch);
-    }
-
     function questionView(batch, track) {
       const { html, toc } = renderMarkdown(track.markdown);
       const tocHtml = toc.length
@@ -1046,9 +956,6 @@
         : "";
       app.innerHTML = `
         <div class="toolbar">
-          <div class="toolbar-meta">
-            ${domainDropdown(batch, slugForTrack(track.key))}
-          </div>
           <button class="btn" id="copy-btn">Copy question</button>
         </div>
         <article class="question-shell">
@@ -1056,7 +963,6 @@
           <div class="markdown-body">${html}</div>
         </article>
       `;
-      bindDomainSelect(batch);
       document.getElementById("copy-btn").addEventListener("click", (event) => {
         copyText(track.markdown, event.currentTarget);
       });
@@ -1074,16 +980,8 @@
       }
       const batchOk = VALID_BATCHES.includes(batchId);
       const batch = batchOk ? findBatch(batchId) : null;
-      if (!batch) {
-        notFoundView();
-        return;
-      }
-      if (!trackKey) {
-        batchPickerView(batch);
-        return;
-      }
-      const track = findTrack(batch, trackKey);
-      if (!track) {
+      const track = batch && trackKey ? findTrack(batch, trackKey) : null;
+      if (!batch || !track) {
         notFoundView();
         return;
       }
