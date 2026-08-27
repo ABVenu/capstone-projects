@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Capstone Projects — Domain Support Agents</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
+  <script src="questions.js"></script>
+  <style>
+    :root {
+      --paper: #f3eee6;
+      --card: #fffdf8;
+      --ink: #1a1714;
+      --muted: #5c534a;
+      --line: #ddd4c7;
+      --navy: #16324f;
+      --navy-2: #0f243a;
+      --accent: #c45c26;
+      --accent-soft: #f4e1d4;
+      --green: #1f6b4a;
+      --code-bg: #efe6d8;
+      --highlight: #f6d7b8;
+      --shadow: 0 10px 30px rgba(22, 50, 79, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #f7e7d8 0%, transparent 55%),
+        var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); }
+
+    .site-header {
+      background: linear-gradient(135deg, var(--navy-2), var(--navy));
+      color: #f8f1e8;
+      padding: 1.4rem 1.25rem 1.55rem;
+      border-bottom: 4px solid var(--accent);
+    }
+    .site-header .wrap, .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .kicker {
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      opacity: 0.75;
+      font-weight: 600;
+      margin: 0 0 0.35rem;
+    }
+    .site-header h1 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(1.6rem, 3vw, 2.25rem);
+      font-weight: 650;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    main { padding: 1.75rem 1.25rem 4rem; min-height: 40vh; }
+
+    .not-found {
+      background: var(--card);
+      border: 1px solid #e8c4a8;
+      border-radius: 16px;
+      padding: 2.4rem 1.6rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .not-found h2 {
+      font-family: Fraunces, Georgia, serif;
+      color: #8a2f0d;
+      margin: 0 0 0.6rem;
+      font-size: 1.7rem;
+    }
+    .not-found p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+      background: var(--navy);
+      color: #fff;
+    }
+    .badge.crew { background: #6b3fa0; }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(243, 238, 230, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 0.75rem 0;
+      margin-bottom: 0.85rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.55rem 0.95rem;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn:hover { filter: brightness(1.05); }
+    .copied { background: var(--green) !important; }
+
+    .toolbar-meta {
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .domain-picker {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .domain-picker label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .domain-picker select {
+      font: inherit;
+      font-weight: 600;
+      color: var(--navy);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.45rem 2rem 0.45rem 0.7rem;
+      min-width: 220px;
+      cursor: pointer;
+      box-shadow: 0 1px 0 rgba(22, 50, 79, 0.04);
+    }
+    .domain-picker select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+    }
+
+    .question-shell {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1.6rem 1.7rem 2.2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .markdown-body {
+      font-size: 1.02rem;
+      line-height: 1.7;
+      color: #2a241f;
+    }
+    .markdown-body h1 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.85rem;
+      line-height: 1.25;
+      margin: 0 0 0.85rem;
+      color: var(--navy);
+      letter-spacing: -0.02em;
+    }
+    .markdown-body h2 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.28rem;
+      margin: 2rem 0 0.7rem;
+      padding: 0.45rem 0 0.45rem 0.8rem;
+      border-left: 4px solid var(--accent);
+      background: linear-gradient(90deg, #f8ece3, transparent 70%);
+      color: var(--navy-2);
+      scroll-margin-top: 4.5rem;
+    }
+    .markdown-body h3 {
+      font-size: 1.05rem;
+      margin: 1.4rem 0 0.5rem;
+      color: var(--navy);
+    }
+    .markdown-body p { margin: 0.7rem 0; }
+    .markdown-body strong {
+      font-weight: 700;
+      color: #111;
+      background: linear-gradient(180deg, transparent 58%, var(--highlight) 58%);
+    }
+    .markdown-body em { color: #3d2a1c; }
+    .markdown-body ul {
+      margin: 0.35rem 0 0.85rem;
+      padding-left: 1.35rem;
+    }
+    .markdown-body ul ul {
+      margin: 0.3rem 0 0.45rem;
+      padding-left: 1.25rem;
+    }
+    .markdown-body li { margin: 0.38rem 0; line-height: 1.6; }
+    .markdown-body li::marker { color: var(--accent); font-weight: 700; }
+    .markdown-body li > ul { margin-top: 0.35rem; }
+
+    .task {
+      margin: 1.15rem 0 1.35rem;
+      padding: 0.15rem 0 1.05rem;
+      border-bottom: 1px solid #f0e4d4;
+    }
+    .task:last-child { border-bottom: 0; }
+    .task-title {
+      font-size: 1.04rem;
+      line-height: 1.45;
+      margin: 0 0 0.5rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .task-title .n {
+      color: var(--accent);
+      margin-right: 0.28rem;
+    }
+    .task-title .label {
+      background: var(--highlight);
+      padding: 0.08em 0.28em;
+      border-radius: 4px;
+      box-decoration-break: clone;
+    }
+    .task-label {
+      margin: 0.55rem 0 0.2rem;
+      font-weight: 700;
+    }
+    .task ul { margin: 0.2rem 0 0.55rem; }
+    .markdown-body code {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.88em;
+      background: var(--code-bg);
+      border: 1px solid #e2d5c3;
+      border-radius: 6px;
+      padding: 0.08em 0.4em;
+      color: #7a2e0e;
+    }
+    .markdown-body pre {
+      background: #172433;
+      color: #f3ebe3;
+      padding: 1rem 1.1rem;
+      border-radius: 10px;
+      overflow: auto;
+    }
+    .markdown-body pre code {
+      background: none;
+      border: 0;
+      color: inherit;
+      padding: 0;
+    }
+    .markdown-body hr {
+      border: 0;
+      border-top: 1px solid var(--line);
+      margin: 1.6rem 0;
+    }
+    .markdown-body blockquote {
+      margin: 1rem 0;
+      padding: 0.2rem 0 0.2rem 1rem;
+      border-left: 4px solid var(--navy);
+      color: var(--muted);
+    }
+
+    .toc {
+      background: #f7f1e8;
+      border: 1px dashed #d2c4b2;
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      margin: 0 0 1.4rem;
+    }
+    .toc h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .toc ol { margin: 0; padding-left: 1.2rem; }
+    .toc ol > li {
+      margin: 0.25rem 0;
+      padding-bottom: 0;
+      border: 0;
+    }
+    .toc a { color: var(--navy); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    .toast {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      background: var(--navy);
+      color: #fff;
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: 0.2s ease;
+      font-weight: 600;
+    }
+    .toast.show { opacity: 1; transform: none; }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 0 1rem 2rem;
+    }
+
+    @media (max-width: 640px) {
+      .question-shell { padding: 1.1rem 1rem 1.5rem; }
+      .markdown-body h1 { font-size: 1.4rem; }
+    }
+
+    @media print {
+      .site-header, .toolbar, .toc, footer, .toast { display: none !important; }
+      body { background: #fff; }
+      .question-shell { box-shadow: none; border: 0; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <p class="kicker">Student capstone briefs</p>
+      <h1>Capstone Projects</h1>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap" id="app"></div>
+  </main>
+
+  <div class="toast" id="toast" role="status">Copied</div>
+
+  <script>
+    const app = document.getElementById("app");
+    const toastEl = document.getElementById("toast");
+    const data = window.CAPSTONE_DATA;
+    const VALID_BATCHES = ["iitr-as-2601", "iitr-as-260113"];
+    const TRACK_ALIASES = {
+      "01banking": "banking",
+      banking: "banking",
+      "02ecommerce": "ecommerce",
+      ecommerce: "ecommerce",
+      "02ecommerece": "ecommerce",
+      "03healthcare": "healthcare",
+      healthcare: "healthcare",
+      "04recruitment": "recruitment",
+      recruitment: "recruitment",
+      "05support": "support",
+      support: "support",
+    };
+    const DOMAIN_OPTIONS = [
+      { slug: "01banking", key: "banking", label: "01banking — Cred (Banking)" },
+      { slug: "02ecommerce", key: "ecommerce", label: "02ecommerce — Nykaa (E-commerce)" },
+      { slug: "03healthcare", key: "healthcare", label: "03healthcare — Practo (Healthcare)" },
+      { slug: "04recruitment", key: "recruitment", label: "04recruitment — Naukri.com (Recruitment)" },
+      { slug: "05support", key: "support", label: "05support — Ola (Support)" },
+    ];
+
+    if (window.marked) marked.setOptions({ gfm: true, breaks: false });
+
+    function parseHash() {
+      const raw = (location.hash || "#/").replace(/^#\/?/, "");
+      const [batchId, trackKey] = raw.split("/").filter(Boolean);
+      return { batchId, trackKey };
+    }
+
+    function findBatch(id) {
+      return data.batches.find((b) => b.id === id);
+    }
+
+    function findTrack(batch, slug) {
+      const internalKey = TRACK_ALIASES[slug];
+      if (!internalKey) return null;
+      return batch.tracks.find((t) => t.key === internalKey);
+    }
+
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("show");
+      setTimeout(() => toastEl.classList.remove("show"), 1800);
+    }
+
+    async function copyText(text, button) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+      showToast("Question copied to clipboard");
+      if (button) {
+        const original = button.textContent;
+        button.classList.add("copied");
+        button.textContent = "Copied";
+        setTimeout(() => {
+          button.classList.remove("copied");
+          button.textContent = original;
+        }, 1400);
+      }
+    }
+
+    function headingId(text, used) {
+      let base = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      let id = base || "section";
+      let n = 2;
+      while (used.has(id)) {
+        id = base + "-" + n;
+        n += 1;
+      }
+      used.add(id);
+      return id;
+    }
+
+    function isBlockStart(line) {
+      return /^(#{1,6}\s|[-*]\s|\d+\.\s)/.test(line);
+    }
+
+    function unwrapMarkdown(md) {
+      const lines = md.replace(/\r\n/g, "\n").split("\n");
+      const out = [];
+      let i = 0;
+      while (i < lines.length) {
+        const line = lines[i];
+        if (!line.trim()) {
+          out.push("");
+          i += 1;
+          continue;
+        }
+        if (/^#{1,6}\s/.test(line.trim())) {
+          out.push(line.trim());
+          i += 1;
+          continue;
+        }
+        if (/^[-*]\s/.test(line.trim()) || /^\d+\.\s/.test(line.trim())) {
+          let text = line.trim();
+          i += 1;
+          while (
+            i < lines.length &&
+            lines[i].trim() &&
+            !isBlockStart(lines[i].trim()) &&
+            /^\s/.test(lines[i])
+          ) {
+            text += " " + lines[i].trim();
+            i += 1;
+          }
+          out.push(text);
+          continue;
+        }
+        let text = line.trim();
+        i += 1;
+        while (i < lines.length && lines[i].trim() && !isBlockStart(lines[i].trim())) {
+          text += " " + lines[i].trim();
+          i += 1;
+        }
+        out.push(text);
+      }
+      return out.join("\n");
+    }
+
+    function splitSentences(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return [];
+      const parts = [];
+      let buf = "";
+      let inCode = false;
+      let inQuote = false;
+      for (let i = 0; i < trimmed.length; i += 1) {
+        const ch = trimmed[i];
+        buf += ch;
+        if (ch === "`") inCode = !inCode;
+        if (!inCode && (ch === '"' || ch === "“" || ch === "”")) inQuote = !inQuote;
+        if (!inCode && !inQuote && (ch === "." || ch === "!" || ch === "?")) {
+          const rest = trimmed.slice(i + 1);
+          const nextCap = /^\s+[A-Z]/.test(rest);
+          const atEnd = rest.trim() === "";
+          if (nextCap || atEnd) {
+            parts.push(buf.trim());
+            buf = "";
+            while (trimmed[i + 1] === " ") i += 1;
+          }
+        }
+      }
+      if (buf.trim()) parts.push(buf.trim());
+      return parts;
+    }
+
+    function splitCommaList(text) {
+      const parts = [];
+      let buf = "";
+      let depth = 0;
+      let inCode = false;
+      for (let i = 0; i < text.length; i += 1) {
+        const ch = text[i];
+        if (ch === "`") inCode = !inCode;
+        else if (!inCode) {
+          if (ch === "(") depth += 1;
+          else if (ch === ")") depth = Math.max(0, depth - 1);
+        }
+        if (ch === "," && !inCode && depth === 0) {
+          const nextUntilBreak = text.slice(i + 1).split(/[,—]/)[0].trim();
+          const nextWordCount = nextUntilBreak.split(/\s+/).filter(Boolean).length;
+          const prevWord = buf.trim().split(/\s+/).pop() || "";
+          if (nextWordCount <= 3 && /(?:able|ized|ised|ous)$/i.test(prevWord)) {
+            buf += ch;
+            continue;
+          }
+          parts.push(buf.trim());
+          buf = "";
+        } else {
+          buf += ch;
+        }
+      }
+      if (buf.trim()) parts.push(buf.trim());
+      return parts.map((part) => part.replace(/^and\s+/i, "")).filter(Boolean);
+    }
+
+    const TECH_TERMS = [
+      "RunnableWithMessageHistory",
+      "InMemoryChatMessageHistory",
+      "langgraph-checkpoint-sqlite",
+      "MaxMessageTermination",
+      "RoundRobinGroupChat",
+      "WebSocketDisconnect",
+      "CREWAI_DISABLE_TELEMETRY",
+      "SentenceTransformers",
+      "StructuredMessage",
+      "OTEL_SDK_DISABLED",
+      "LangChainDeprecationWarning",
+      "collection.upsert()",
+      "output_content_type",
+      "custom_message_types",
+      "response_format",
+      "all-MiniLM-L6-v2",
+      "Precision@3",
+      "Recall@3",
+      "JSON-Lines",
+      "JSON Schema",
+      "JSON-Lines",
+      "BaseModel",
+      "LangGraph",
+      "LangChain",
+      "ChromaDB",
+      "CrewAI",
+      "Autogen",
+      "FastAPI",
+      "Pydantic",
+      "MOCK_LLM",
+      "fastmcp",
+      "fast-mcp",
+      "WebSocket",
+      "BaseLLM",
+      "SQLite",
+      "litellm",
+      "ReAct",
+      "FastMCP",
+      "README.md",
+      "dataset.py",
+      "GitHub",
+      "MCP",
+      "RAG",
+      "ELK",
+      "HTTP",
+      "API",
+      "PII",
+      "KB",
+      "SLA",
+      "KYC",
+      "EMI",
+      "NRI",
+      "COD",
+    ];
+
+    function escapeRegExp(text) {
+      return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function mapUncoded(text, mapper) {
+      return text.replace(/`[^`]*`|[^`]+/g, (chunk) => (chunk.startsWith("`") ? chunk : mapper(chunk)));
+    }
+
+    function highlightTech(text) {
+      const sorted = TECH_TERMS.slice().sort((a, b) => b.length - a.length);
+      let out = mapUncoded(text, (chunk) => {
+        let next = chunk;
+        sorted.forEach((term) => {
+          const re = new RegExp("(?<![\\w./-])" + escapeRegExp(term) + "(?![\\w./-])", "g");
+          next = next.replace(re, "`" + term + "`");
+        });
+        return next;
+      });
+      out = mapUncoded(out, (chunk) =>
+        chunk
+          .replace(/\b([A-Z][A-Z0-9_]{4,})\b/g, "`$1`")
+          .replace(/\b(\w+\.py)\b/g, "`$1`")
+          .replace(/\b(POST|GET|PUT|DELETE|PATCH)\s+(\/[A-Za-z0-9_-]+)/g, "`$1 $2`")
+      );
+      return out;
+    }
+
+    function highlightConstraints(text) {
+      return mapUncoded(text, (chunk) =>
+        chunk.replace(/(≥\d+(?:\s*-\s*\d+)?|\b\d{1,3}%|\b\d+-day\b)/g, "**$1**")
+      );
+    }
+
+    function inlineMd(text) {
+      if (!text) return "";
+      const prepared = highlightConstraints(highlightTech(text));
+      if (window.marked && marked.parseInline) {
+        return marked.parseInline(prepared, { gfm: true });
+      }
+      return prepared.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    }
+
+    function firstColonIndex(text) {
+      let depth = 0;
+      let inCode = false;
+      for (let i = 0; i < text.length; i += 1) {
+        const ch = text[i];
+        if (ch === "`") inCode = !inCode;
+        else if (!inCode) {
+          if (ch === "(") depth += 1;
+          else if (ch === ")") depth = Math.max(0, depth - 1);
+          else if (ch === ":" && depth === 0) return i;
+        }
+      }
+      return -1;
+    }
+
+    function colonList(sentence) {
+      const idx = firstColonIndex(sentence);
+      if (idx < 0) return null;
+      const intro = sentence.slice(0, idx + 1).trim();
+      const rest = sentence.slice(idx + 1).trim();
+      if (/e\.g\.$/i.test(intro.replace(/:$/, "").trim())) return null;
+      if (rest.length < 12) return null;
+      if (/·/.test(rest) || /\*\*[^*]+?:\*\*/.test(rest)) return null;
+      if (/^(a|an|the)\s+/i.test(rest) && /\b(that|which|who)\b/i.test(rest)) return null;
+      const items = splitCommaList(rest);
+      if (items.length < 3) return null;
+      const lengths = items.map((item) => item.length);
+      const longest = Math.max.apply(null, lengths);
+      const shortest = Math.min.apply(null, lengths);
+      if (longest > 90 && longest > shortest * 3) return null;
+      if (items.filter((item) => item.length > 80).length >= 2) return null;
+      return { intro, items };
+    }
+
+    function splitSemicolons(sentence) {
+      const parts = [];
+      let buf = "";
+      let depth = 0;
+      let inCode = false;
+      for (let i = 0; i < sentence.length; i += 1) {
+        const ch = sentence[i];
+        if (ch === "`") inCode = !inCode;
+        else if (!inCode) {
+          if (ch === "(") depth += 1;
+          else if (ch === ")") depth = Math.max(0, depth - 1);
+        }
+        if (!inCode && depth === 0 && sentence.slice(i, i + 2) === "; ") {
+          if (buf.trim()) parts.push(buf.trim());
+          buf = "";
+          i += 1;
+          continue;
+        }
+        buf += ch;
+      }
+      if (buf.trim()) parts.push(buf.trim());
+      if (parts.length >= 2 && parts.every((part) => part.length > 28)) return parts;
+      return [sentence];
+    }
+
+    function splitPitfallChunks(text) {
+      if (!/\(\s*1\s*\)/.test(text) || !/\(\s*2\s*\)/.test(text)) return [text];
+      return text.split(/(?=\(\s*\d+\s*\)\s)/).map((part) => part.trim()).filter(Boolean);
+    }
+
+    function splitOnEmDash(text) {
+      const parts = [];
+      let buf = "";
+      let depth = 0;
+      let inCode = false;
+      for (let i = 0; i < text.length; i += 1) {
+        const ch = text[i];
+        if (ch === "`") inCode = !inCode;
+        else if (!inCode) {
+          if (ch === "(") depth += 1;
+          else if (ch === ")") depth = Math.max(0, depth - 1);
+        }
+        if (!inCode && depth === 0 && text.slice(i, i + 3) === " — ") {
+          if (buf.trim()) parts.push(buf.trim());
+          buf = "";
+          i += 2;
+          continue;
+        }
+        buf += ch;
+      }
+      if (buf.trim()) parts.push(buf.trim());
+      return parts;
+    }
+
+    function tidyClause(part) {
+      const text = part.trim();
+      if (!text) return text;
+      if (/^[a-z]/.test(text)) return text.charAt(0).toUpperCase() + text.slice(1);
+      return text;
+    }
+
+    function splitClauses(sentence) {
+      return splitOnEmDash(sentence)
+        .flatMap((part) =>
+          part.split(/,\s+plus\s+/i).map((bit, i) => (i === 0 ? bit : "plus " + bit))
+        )
+        .flatMap((part) => part.split(/,\s+(?=reporting\b)/i))
+        .map(tidyClause)
+        .filter(Boolean);
+    }
+
+    function splitThatList(sentence) {
+      const match = sentence.match(/^(.*?)\bthat\b\s+([\s\S]+)$/i);
+      if (!match) return null;
+      const items = splitCommaList(match[2]);
+      if (items.length < 4) return null;
+      return { lead: match[1].trim() + " that", items: items };
+    }
+
+    function consumePiece(piece, units) {
+      const needs = piece.match(/^(Each record needs:)\s*(.+)$/i);
+      if (needs) {
+        units.push({ type: "labeled", label: needs[1], items: splitCommaList(needs[2]) });
+        return;
+      }
+      const report = piece.match(/^(Print and report:)\s*(.+)$/i);
+      if (report) {
+        units.push({ type: "labeled", label: report[1], items: splitCommaList(report[2]) });
+        return;
+      }
+      const demo = piece.match(/^(Demonstrate:)\s*(.+)$/i);
+      if (demo && /\([a-z]\)/i.test(demo[2])) {
+        const bits = demo[2]
+          .split(/(?=\([a-z]\)\s)/i)
+          .map((s) => s.trim())
+          .filter(Boolean);
+        units.push({ type: "labeled", label: demo[1], items: bits });
+        return;
+      }
+      const colon = colonList(piece);
+      if (colon) {
+        units.push({ type: "labeled", label: colon.intro, items: colon.items });
+        return;
+      }
+      const thatList = splitThatList(piece);
+      if (thatList) {
+        units.push({ type: "li", text: thatList.lead + " " + thatList.items[0] });
+        units.push({ type: "nested", items: thatList.items.slice(1) });
+        return;
+      }
+      const commaItems = splitCommaList(piece);
+      if (
+        commaItems.length >= 3 &&
+        commaItems.every((item) => /^(and\s+)?[a-z]+(?:ed|ing)\b/.test(item))
+      ) {
+        commaItems.forEach((item) => units.push({ type: "li", text: tidyClause(item) }));
+        return;
+      }
+      splitClauses(piece).forEach((clause) => units.push({ type: "li", text: clause }));
+    }
+
+    function processSentences(text, units) {
+      splitSentences(text).forEach((sentence) => {
+        splitSemicolons(sentence).forEach((piece) => consumePiece(piece, units));
+      });
+    }
+
+    function bodyUnits(rest) {
+      const units = [];
+      if (!rest || !String(rest).trim()) return units;
+      const layerChunks = rest
+        .split(/(?=At the \*\*(?:Application|Runtime) layer\*\*)/i)
+        .map((part) => part.trim())
+        .filter(Boolean);
+      if (layerChunks.length > 1) {
+        layerChunks.forEach((chunk) => {
+          const match = chunk.match(/^(At the \*\*[^*]+\*\*)[.:]?\s*([\s\S]*)$/i);
+          if (match && match[2].trim()) {
+            const inner = [];
+            processText(match[2], inner);
+            units.push({
+              type: "labeled",
+              label: match[1],
+              items: inner.map((unit) => (unit.type === "li" ? unit.text : unit.label + " " + (unit.items || []).join("; "))),
+            });
+          } else {
+            processText(chunk, units);
+          }
+        });
+        return units;
+      }
+      processText(rest, units);
+      return units;
+    }
+
+    function processText(text, units) {
+      const parts = splitPitfallChunks(text);
+      if (parts.length > 1) {
+        let intro = "";
+        const items = [];
+        parts.forEach((part) => {
+          if (/^\(\s*\d+\s*\)/.test(part)) items.push(part);
+          else intro += (intro ? " " : "") + part;
+        });
+        if (intro) processSentences(intro, units);
+        if (items.length) units.push({ type: "nested", items });
+        return;
+      }
+      processSentences(text, units);
+    }
+
+    function listHtml(items) {
+      return (
+        "<ul>" +
+        items.map((item) => `<li>${inlineMd(String(item).replace(/\.$/, ""))}</li>`).join("") +
+        "</ul>"
+      );
+    }
+
+    function unitsToHtml(units) {
+      let html = "";
+      let buf = [];
+      const flush = () => {
+        if (!buf.length) return;
+        html += "<ul>";
+        buf.forEach((item) => {
+          if (typeof item === "string") {
+            html += `<li>${inlineMd(item)}</li>`;
+          } else {
+            html += `<li>${inlineMd(item.text)}${item.children}</li>`;
+          }
+        });
+        html += "</ul>";
+        buf = [];
+      };
+      units.forEach((unit) => {
+        if (unit.type === "li") {
+          buf.push(unit.text);
+          return;
+        }
+        if (unit.type === "nested") {
+          const inner = listHtml(unit.items || []);
+          if (buf.length) {
+            const last = buf.pop();
+            const text = typeof last === "string" ? last : last.text;
+            buf.push({ text: text, children: inner });
+          } else {
+            flush();
+            html += inner;
+          }
+          return;
+        }
+        flush();
+        if (unit.label) html += `<p class="task-label">${inlineMd(unit.label)}</p>`;
+        html += listHtml(unit.items || []);
+      });
+      flush();
+      return html;
+    }
+
+    function renderTextBlock(text) {
+      const units = bodyUnits(text);
+      const structured = units.some((unit) => unit.type !== "li");
+      if (!structured && units.length <= 2) {
+        return units.map((unit) => `<p>${inlineMd(unit.text)}</p>`).join("");
+      }
+      return unitsToHtml(units);
+    }
+
+    function liFromUnits(item, units) {
+      if (!units.length) return `<li>${inlineMd(item)}</li>`;
+      if (units.length === 1 && units[0].type === "li") {
+        return `<li>${inlineMd(units[0].text)}</li>`;
+      }
+      if (units[0].type === "li") {
+        return `<li>${inlineMd(units[0].text)}${unitsToHtml(units.slice(1))}</li>`;
+      }
+      return `<li>${unitsToHtml(units)}</li>`;
+    }
+
+    function blocksToHtml(md) {
+      const lines = unwrapMarkdown(md).split("\n");
+      let html = "";
+      let ulBuf = [];
+      const flushUl = () => {
+        if (!ulBuf.length) return;
+        html += "<ul>";
+        ulBuf.forEach((item) => {
+          html += liFromUnits(item, bodyUnits(item));
+        });
+        html += "</ul>";
+        ulBuf = [];
+      };
+      lines.forEach((line) => {
+        if (!line.trim()) return;
+        if (/^#{1,6}\s/.test(line)) {
+          flushUl();
+          const match = line.match(/^(#{1,6})\s+(.*)$/);
+          const level = Math.min(match[1].length, 4);
+          html += `<h${level}>${inlineMd(match[2])}</h${level}>`;
+          return;
+        }
+        const ol = line.match(/^(\d+)\.\s+(.*)$/);
+        if (ol) {
+          flushUl();
+          const raw = ol[2];
+          const titleMatch = raw.match(/^\*\*(.+?)\*\*\s*(.*)$/);
+          const title = titleMatch ? titleMatch[1] : raw;
+          const rest = titleMatch ? titleMatch[2] : "";
+          html += `<section class="task"><h3 class="task-title"><span class="n">${ol[1]}.</span> <span class="label">${inlineMd(title)}</span></h3>${unitsToHtml(bodyUnits(rest))}</section>`;
+          return;
+        }
+        const ul = line.match(/^[-*]\s+(.*)$/);
+        if (ul) {
+          ulBuf.push(ul[1]);
+          return;
+        }
+        flushUl();
+        if (/^\*\*[^*]+\*\*\s*$/.test(line)) {
+          html += `<h3>${inlineMd(line.trim())}</h3>`;
+          return;
+        }
+        html += renderTextBlock(line);
+      });
+      flushUl();
+      return html;
+    }
+
+    function renderMarkdown(markdown) {
+      const html = blocksToHtml(markdown);
+      const holder = document.createElement("div");
+      holder.innerHTML = html;
+      const used = new Set();
+      const toc = [];
+      holder.querySelectorAll("h2").forEach((h) => {
+        const id = headingId(h.textContent, used);
+        h.id = id;
+        toc.push({ id, text: h.textContent });
+      });
+      return { html: holder.innerHTML, toc };
+    }
+
+    function homeView() {
+      app.innerHTML = "";
+    }
+
+    function notFoundView() {
+      app.innerHTML = `
+        <div class="not-found">
+          <h2>Projects Not Found</h2>
+          <p>Please selected within the project allotted</p>
+        </div>
+      `;
+    }
+
+    function slugForTrack(trackKey) {
+      const option = DOMAIN_OPTIONS.find((item) => item.key === trackKey);
+      return option ? option.slug : "";
+    }
+
+    function domainDropdown(batch, selectedSlug) {
+      const options = DOMAIN_OPTIONS.map(
+        (item) =>
+          `<option value="${item.slug}" ${item.slug === selectedSlug || TRACK_ALIASES[selectedSlug] === item.key ? "selected" : ""}>${item.label}</option>`
+      ).join("");
+      return `
+        <div class="domain-picker">
+          <label for="domain-select">Domain</label>
+          <select id="domain-select">
+            <option value="">Select domain</option>
+            ${options}
+          </select>
+        </div>
+      `;
+    }
+
+    function bindDomainSelect(batch) {
+      const select = document.getElementById("domain-select");
+      if (!select) return;
+      select.addEventListener("change", () => {
+        if (!select.value) {
+          location.hash = "#/" + batch.id;
+          return;
+        }
+        location.hash = "#/" + batch.id + "/" + select.value;
+      });
+    }
+
+    function batchPickerView(batch) {
+      app.innerHTML = `
+        <div class="toolbar">
+          <div class="toolbar-meta">
+            <strong>${batch.title}</strong>
+            ${domainDropdown(batch, "")}
+          </div>
+        </div>
+        <article class="question-shell">
+          <p class="lede" style="margin:0;color:var(--muted)">Select a domain from the dropdown to load that problem statement.</p>
+        </article>
+      `;
+      bindDomainSelect(batch);
+    }
+
+    function questionView(batch, track) {
+      const { html, toc } = renderMarkdown(track.markdown);
+      const tocHtml = toc.length
+        ? `<nav class="toc"><h3>On this page</h3><ol>${toc
+            .map((item) => `<li><a href="${location.hash}" data-scroll="${item.id}">${item.text}</a></li>`)
+            .join("")}</ol></nav>`
+        : "";
+      app.innerHTML = `
+        <div class="toolbar">
+          <div class="toolbar-meta">
+            ${domainDropdown(batch, slugForTrack(track.key))}
+          </div>
+          <button class="btn" id="copy-btn">Copy question</button>
+        </div>
+        <article class="question-shell">
+          ${tocHtml}
+          <div class="markdown-body">${html}</div>
+        </article>
+      `;
+      bindDomainSelect(batch);
+      document.getElementById("copy-btn").addEventListener("click", (event) => {
+        copyText(track.markdown, event.currentTarget);
+      });
+    }
+
+    function render() {
+      if (!data || !data.batches) {
+        app.innerHTML = `<div class="not-found"><h2>Projects Not Found</h2><p>Please selected within the project allotted</p></div>`;
+        return;
+      }
+      const { batchId, trackKey } = parseHash();
+      if (!batchId && !trackKey) {
+        homeView();
+        return;
+      }
+      const batchOk = VALID_BATCHES.includes(batchId);
+      const batch = batchOk ? findBatch(batchId) : null;
+      if (!batch) {
+        notFoundView();
+        return;
+      }
+      if (!trackKey) {
+        batchPickerView(batch);
+        return;
+      }
+      const track = findTrack(batch, trackKey);
+      if (!track) {
+        notFoundView();
+        return;
+      }
+      questionView(batch, track);
+    }
+
+    document.addEventListener("click", (event) => {
+      const scrollTarget = event.target.closest("[data-scroll]");
+      if (!scrollTarget) return;
+      event.preventDefault();
+      const el = document.getElementById(scrollTarget.getAttribute("data-scroll"));
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    window.addEventListener("hashchange", render);
+    render();
+  </script>
+</body>
+</html>
